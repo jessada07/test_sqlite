@@ -1,41 +1,43 @@
 import sqlite3
-con = sqlite3.connect('grade.db')
+from time import time
+import math
+import random
+con = sqlite3.connect('transcript.db')
 cur = con.cursor()
 
 def create_table():
-    cur.execute("CREATE TABLE IF NOT EXISTS data(subject TEXT, credit INTEGER, grade INTEGER, term INTEGER )")
+    cur.execute("CREATE TABLE IF NOT EXISTS transcript(subject TEXT, credit INTEGER, section INTEGER, grade TEXT, term INTEGER, number_id TEXT,\
+     FOREIGN KEY (number_id) REFERENCES student(number_id))")
+    con.commit()
+    cur.execute("CREATE TABLE IF NOT EXISTS student(number_id TEXT Primary Key, name TEXT, surename TEXT)")
     con.commit()
     con.close
 
-def insert(subject, credit, grade, term):
-    cur.execute("INSERT INTO data VALUES(?,?,?,?)", (subject, credit, grade, term))
-    con.commit()
-    con.close
+def insert_grade(subject, credit, section, grade, term, number_id):
+    cur.execute("INSERT INTO transcript VALUES(?,?,?,?,?,?)", (subject, credit, section, grade, term, number_id))
     
-def view():
-    cur.execute("SELECT * FROM data")
-    records = cur.fetchall()
-    con.close
-    return records
+def insert_data(number_id, name, surename):
+    cur.execute("INSERT INTO student VALUES(?,?,?)", (number_id, name, surename))
 
-def update(subject, credit, grade):
-    cur.execute("UPDATE data SET subject=?, credit=?, grade=?, term=?",(subject, credit, grade, term))
-    con.commit()
-    con.close
 
-def delete(subject):
-    cur.execute("DELETE FROM data WHERE subject=?",(subject,))
-    con.commit()
+def get_data():
+    n = 5801100000000
+    list_subject = ["010123101   INTRODUCTION TO COMPUTER", "010123102   PROGRAMMING FUNDAMENTALS",\
+     "040203111   ENGINEERING MATHEMATICS", "040313005   PHYSICS"]
+    list_grade = ["A", "B", "C", "D"]
+    for i in range(8000000):
+    	insert_data(n, "Jessada", "Weeradetkumpon")
+    	for j in range(40):
+    		k = random.randint(0,3)
+    		insert_grade(list_subject[k],"1", "1", list_grade[k], 1, n)
+    	print(i,": success")
+    	n+=1
+    con.commit()    	
     con.close
 
 create_table()
-insert("010123101   INTRODUCTION TO COMPUTER", 1, 4, 1)
-insert("010123102   PROGRAMMING FUNDAMENTALS", 3, 2, 1)
-insert("040203111   ENGINEERING MATHEMATICS I", 3, 3, 1)
-insert("040313005   PHYSICS I", 3, 3, 1)
-insert("040313006   PHYSICS LABORATORY I", 1, 3.5, 1)
-insert("080103001   ENGLISH I", 1, 4, 1)
-insert("080203901   MAN AND SOCIETY", 3, 4, 1)
-insert("080303505   TABLE TENNIS", 1, 3.5, 1)
-#delete("010123101   INTRODUCTION TO COMPUTER")
-print(view())
+start = time()
+get_data()
+end = time()
+elapsed = end - start
+print(elapsed, "s")
